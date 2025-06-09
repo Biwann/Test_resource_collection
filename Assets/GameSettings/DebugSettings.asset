@@ -9,8 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc429025e01fea94e989b39e5e4118c1, type: 3}
-  m_Name: DroneMovableParameters
+  m_Script: {fileID: 11500000, guid: 247b739b4a40fc54c8a1afe17b394e62, type: 3}
+  m_Name: DebugSettings
   m_EditorClassIdentifier: 
-  _moveSpeed: 1
-  _rotationSpeed: 120

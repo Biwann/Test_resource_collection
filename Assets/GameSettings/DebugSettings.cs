@@ -4,8 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New DebugSettings", menuName = "Debug Settings", order = 54)]
 public class DebugSettings : ScriptableObject
 {
-    private int _dronesPerFaction = 3;
-    private bool _showDronePath = true;
+    [SerializeField] private int _dronesPerFaction = 3;
+    [SerializeField] private bool _showDronePath = true;
 
     public event Action DebugSettingsChanged = () => { };
 

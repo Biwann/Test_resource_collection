@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public sealed class DeliverResourceToBaseStrategy : BehaviorStrategyBase
 {
     [SerializeField] private float _deliverRange = 1f;
     [SerializeField] private ParticleSystem _deliveryEffect;
+    [SerializeField] private DebugSettings _debugSettings;
 
     public override void Enter(IBehaviorStrategyParameter parameter = null)
     {
@@ -15,6 +17,15 @@ public sealed class DeliverResourceToBaseStrategy : BehaviorStrategyBase
         }
         
         _targetPosition = _homeBase.position;
+
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.stoppingDistance = _deliverRange;
+
+        var movableParams = GetComponent<MovableUnitBase>().MovableUnitParameters;
+        _agent.speed = movableParams.MoveSpeed;
+        _agent.angularSpeed = movableParams.RotationsSpeed;
+        _agent.updateUpAxis = false;
+        _agent.isStopped = false;
     }
 
     public override BehaviorStrategyState Execute()
@@ -27,6 +38,8 @@ public sealed class DeliverResourceToBaseStrategy : BehaviorStrategyBase
         var isMoved = TryMoveToBase();
         if (!isMoved)
         {
+            var factionBase = _homeBase.GetComponent<FactionBase>();
+            factionBase.AddResource();
             return BehaviorStrategyState.Success;
         }
 
@@ -40,17 +53,29 @@ public sealed class DeliverResourceToBaseStrategy : BehaviorStrategyBase
 
     private bool TryMoveToBase()
     {
-        var distance = Vector3.Distance(transform.position, _homeBase.transform.position);
-
-        if (distance < _deliverRange)
+        if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
         {
+            _agent.isStopped = true;
             return false;
         }
 
-        // navmesh
+        if (!_agent.hasPath)
+        {
+            _agent.SetDestination(_targetPosition);
+        }
+        else if (_debugSettings.ShowDronePath)
+        {
+            var path = _agent.path;
+            for (int i = 1; i < path.corners.Length; i++)
+            {
+                Debug.DrawLine(path.corners[i - 1], path.corners[i], Color.green);
+            }
+        }
+
         return true;
     }
 
     private Transform _homeBase;
     private Vector3 _targetPosition;
+    private NavMeshAgent _agent;
 }
